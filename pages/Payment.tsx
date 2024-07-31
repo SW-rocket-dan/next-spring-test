@@ -68,13 +68,40 @@ const PaymentPage = () => {
     payMethod: 'CARD',
   };
 
-  const tossPaymentSingleCertificate = {
+  const tossPaymentSingleCertificateCulture = {
     storeId: process.env.NEXT_PUBLIC_STORE_ID,
     channelKey: process.env.NEXT_PUBLIC_CHANNEL_KEY,
     orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제)',
     totalAmount: 500,
     currency: 'CURRENCY_KRW',
-    payMethod: 'CARD',
+    payMethod: 'GIFT_CERTIFICATE',
+    giftCertificate: {
+      giftCertificateType: 'CULTURELAND',
+    }
+  };
+
+  const tossPaymentSingleCertificateBook = {
+    storeId: process.env.NEXT_PUBLIC_STORE_ID,
+    channelKey: process.env.NEXT_PUBLIC_CHANNEL_KEY,
+    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제)',
+    totalAmount: 500,
+    currency: 'CURRENCY_KRW',
+    payMethod: 'GIFT_CERTIFICATE',
+    giftCertificate: {
+      giftCertificateType: 'BOOKNLIFE',
+    }
+  };
+
+  const tossPaymentSingleCertificateGame = {
+    storeId: process.env.NEXT_PUBLIC_STORE_ID,
+    channelKey: process.env.NEXT_PUBLIC_CHANNEL_KEY,
+    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제)',
+    totalAmount: 500,
+    currency: 'CURRENCY_KRW',
+    payMethod: 'GIFT_CERTIFICATE',
+    giftCertificate: {
+      giftCertificateType: 'SMART_MUNSANG',
+    }
   };
 
   const tossPaymentSingleMobile = {
@@ -85,7 +112,6 @@ const PaymentPage = () => {
     currency: 'CURRENCY_KRW',
     payMethod: 'MOBILE',
   };
-
 
   const [count, setCount] = useState(1);
   const originalPrice = 5000;
@@ -107,43 +133,59 @@ const PaymentPage = () => {
   return (
     <>
       <div className="flex justify-center items-center h-full">
-        <div className="payment-container bg-white rounded-lg shadow-lg w-96 p-6 text-center">
+        <div className="payment-container bg-white rounded-lg shadow-lg w-96 p-6 text-center mt-10">
           <div className="payment-header text-2xl font-bold mb-6">AI 포스터 생성 이용권</div>
-          <div className="original-price text-lg line-through mb-2">
-            기존 {totalOriginalPrice}원 <span className="arrow">→</span>
+          <hr className="border-gray-300 mb-4" />
+          <div className="original-price text-lg mb-2">
+            <span className="line-through">기존 {totalOriginalPrice}원</span> <span className="arrow">→</span>
           </div>
           <div className="payment-price text-5xl font-bold my-2">{totalPrice}원</div>
           <div className="flex justify-center items-center mb-6">
-            <button className="quantity-button text-xl" onClick={handleDecrease}>-</button>
-            <span className="mx-4 text-xl">  {count}  </span>
-            <button className="quantity-button text-xl" onClick={handleIncrease}>+</button>
+            <button className="quantity-button text-xl bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center mx-2" onClick={handleDecrease}>-</button>
+            <span className="mx-4 text-xl"> {count} </span>
+            <button className="quantity-button text-xl bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center mx-2" onClick={handleIncrease}>+</button>
           </div>
-          <div className="payment-validity text-purple-600 mb-6">유효기간: 구매일로부터 365일</div>
+          <div className="payment-validity mb-6">
+            <span className="validity-label">유효기간</span> 구매일로부터 365일
+          </div>
           <div className="payment-details text-left mb-6">
             <ul className="list-none p-0">
-              <li className="mb-4 relative pl-6">
-                <span className="absolute left-0 text-purple-600"></span> AI로 포스터 완성본을 생성할 수 있어요.
+              <li className="mb-4 relative pl-6 flex items-center">
+                <span className="text-purple-600 mr-2">&#10003;</span> AI로 포스터&nbsp;<span className="font-bold">완성본</span>을 생성할 수 있어요.
               </li>
-              <li className="mb-4 relative pl-6">
-                <span className="absolute left-0 text-purple-600"></span> 포스터 완성본을 직접 수정할 수 있어요.
+              <li className="mb-4 relative pl-6 flex items-center">
+                <span className="text-purple-600 mr-2">&#10003;</span> 생성된 포스터를 직접&nbsp;<span className="font-bold">수정</span>할 수 있어요.
               </li>
             </ul>
           </div>
           <div className="button-container">
             <button
-              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4"
+              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
               onClick={() => handlePurchase(tossPaymentSingleCard)}
             >
               신용·체크카드로 결제하기
             </button>
             <button
-              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4"
-              onClick={() => handlePurchase(tossPaymentSingleCertificate)}
+              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
+              onClick={() => handlePurchase(tossPaymentSingleCertificateCulture)}
             >
-              문화상품권으로 결제하기
+              문화상품권(컬쳐랜드)
             </button>
             <button
-              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4"
+              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
+              onClick={() => handlePurchase(tossPaymentSingleCertificateBook)}
+            >
+              도서문화상품권
+            </button>
+            <button
+              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
+              onClick={() => handlePurchase(tossPaymentSingleCertificateGame)}
+            >
+              스마트문상(구. 게임문화상품권)
+            </button>
+            
+            <button
+              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
               onClick={() => handlePurchase(tossPaymentSingleMobile)}
             >
               휴대폰 소액결제
@@ -156,16 +198,14 @@ const PaymentPage = () => {
         .button-container {
           margin-top: 20px; /* 버튼들 상단에 여백 추가 */
         }
-        .payment-button {
-          margin-bottom: 16px; /* 버튼들 사이에 여백 추가 */
-        }
         .payment-container {
           background-color: #fff;
-          border-radius: 12px;
+          border-radius: 30px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
           width: 400px;
           padding: 20px;
           text-align: center;
+          margin-top: 50px; /* 전체 컨텐츠를 아래로 이동시킴 */
         }
         .payment-header {
           font-size: 20px;
@@ -193,6 +233,18 @@ const PaymentPage = () => {
         .payment-validity {
           color: #6c63ff;
           margin: 10px 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .validity-label {
+          display: inline-block;
+          padding: 5px 10px;
+          border: 2px solid #6c63ff;
+          border-radius: 20px;
+          color: #6c63ff;
+          font-weight: bold;
+          margin-right: 10px;
         }
         .payment-details {
           text-align: left;
@@ -205,12 +257,8 @@ const PaymentPage = () => {
         .payment-details ul li {
           margin: 10px 0;
           position: relative;
-        }
-        .payment-details ul li::before {
-          content: '✔';
-          position: absolute;
-          left: -20px;
-          color: #6c63ff;
+          display: flex;
+          align-items: center;
         }
         .payment-button {
           background-color: #6c63ff;
@@ -218,9 +266,16 @@ const PaymentPage = () => {
           border: none;
           padding: 15px;
           width: 100%;
-          border-radius: 8px;
+          border-radius: 40px;
           font-size: 18px;
           cursor: pointer;
+          margin-bottom: 16px;
+        }
+        .flex.justify-between .payment-button {
+          flex: 1;
+        }
+        .shadow-button {
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
       `}</style>
     </>
