@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import '../styles/globals.css';
 
 declare global {
   interface Window {
@@ -114,17 +115,17 @@ const PaymentPage = () => {
           <div className="payment-price text-5xl font-bold my-2">{totalPrice}원</div>
           <div className="flex justify-center items-center mb-6">
             <button className="quantity-button text-xl" onClick={handleDecrease}>-</button>
-            <span className="mx-4 text-xl">{count}</span>
+            <span className="mx-4 text-xl">  {count}  </span>
             <button className="quantity-button text-xl" onClick={handleIncrease}>+</button>
           </div>
           <div className="payment-validity text-purple-600 mb-6">유효기간: 구매일로부터 365일</div>
           <div className="payment-details text-left mb-6">
             <ul className="list-none p-0">
               <li className="mb-4 relative pl-6">
-                <span className="absolute left-0 text-purple-600">✔</span> AI로 포스터 완성본을 생성할 수 있어요.
+                <span className="absolute left-0 text-purple-600"></span> AI로 포스터 완성본을 생성할 수 있어요.
               </li>
               <li className="mb-4 relative pl-6">
-                <span className="absolute left-0 text-purple-600">✔</span> 포스터 완성본을 직접 수정할 수 있어요.
+                <span className="absolute left-0 text-purple-600"></span> 포스터 완성본을 직접 수정할 수 있어요.
               </li>
             </ul>
           </div>
