@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import '../styles/globals.css';
 
 declare global {
@@ -17,6 +17,7 @@ const generateUUID = () => {
 
 const PaymentPage = () => {
   const [portOneLoaded, setPortOneLoaded] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -50,19 +51,28 @@ const PaymentPage = () => {
     }
   };
 
-  const handlePurchase = (basePaymentData: any) => {
+  const handlePurchase = useCallback((basePaymentData: any) => {
+    if (isButtonDisabled) return;
+
+    setIsButtonDisabled(true);
+
     const paymentData = {
       ...basePaymentData,
       paymentId: generateUUID(),
       redirectUrl: 'https://cardcapture.app/payment',
     };
     requestPayment(paymentData);
-  };
+
+    setTimeout(() => {
+      setIsButtonDisabled(false);
+    }, 1000);
+  }, [isButtonDisabled, portOneLoaded]);
+
 
   const tossPaymentSingleCard = {
     storeId: process.env.NEXT_PUBLIC_STORE_ID,
     channelKey: process.env.NEXT_PUBLIC_CHANNEL_KEY,
-    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제)',
+    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제) (카드)',
     totalAmount: 500,
     currency: 'CURRENCY_KRW',
     payMethod: 'CARD',
@@ -71,7 +81,7 @@ const PaymentPage = () => {
   const tossPaymentSingleCertificateCulture = {
     storeId: process.env.NEXT_PUBLIC_STORE_ID,
     channelKey: process.env.NEXT_PUBLIC_CHANNEL_KEY,
-    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제)',
+    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제) (문화상품권)',
     totalAmount: 500,
     currency: 'CURRENCY_KRW',
     payMethod: 'GIFT_CERTIFICATE',
@@ -83,7 +93,7 @@ const PaymentPage = () => {
   const tossPaymentSingleCertificateBook = {
     storeId: process.env.NEXT_PUBLIC_STORE_ID,
     channelKey: process.env.NEXT_PUBLIC_CHANNEL_KEY,
-    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제)',
+    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제) (도서문화상품권)',
     totalAmount: 500,
     currency: 'CURRENCY_KRW',
     payMethod: 'GIFT_CERTIFICATE',
@@ -95,7 +105,7 @@ const PaymentPage = () => {
   const tossPaymentSingleCertificateGame = {
     storeId: process.env.NEXT_PUBLIC_STORE_ID,
     channelKey: process.env.NEXT_PUBLIC_CHANNEL_KEY,
-    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제)',
+    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제) (게임문화상품권)',
     totalAmount: 500,
     currency: 'CURRENCY_KRW',
     payMethod: 'GIFT_CERTIFICATE',
@@ -107,7 +117,7 @@ const PaymentPage = () => {
   const tossPaymentSingleMobile = {
     storeId: process.env.NEXT_PUBLIC_STORE_ID,
     channelKey: process.env.NEXT_PUBLIC_CHANNEL_KEY,
-    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제)',
+    orderName: 'AI 포스터 생성 1장 이용권(토스페이먼츠 단건 결제) (실결제) (휴대폰 소액결제)',
     totalAmount: 500,
     currency: 'CURRENCY_KRW',
     payMethod: 'MOBILE',
@@ -160,33 +170,37 @@ const PaymentPage = () => {
           </div>
           <div className="button-container">
             <button
-              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
+              className={`payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => handlePurchase(tossPaymentSingleCard)}
+              disabled={isButtonDisabled}
             >
               신용·체크카드로 결제하기
             </button>
             <button
-              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
+              className={`payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => handlePurchase(tossPaymentSingleCertificateCulture)}
+              disabled={isButtonDisabled}
             >
               문화상품권(컬쳐랜드)
             </button>
             <button
-              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
+              className={`payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => handlePurchase(tossPaymentSingleCertificateBook)}
+              disabled={isButtonDisabled}
             >
               도서문화상품권
             </button>
             <button
-              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
+              className={`payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => handlePurchase(tossPaymentSingleCertificateGame)}
+              disabled={isButtonDisabled}
             >
               스마트문상(구. 게임문화상품권)
             </button>
-            
             <button
-              className="payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button"
+              className={`payment-button bg-purple-600 text-white py-4 w-full rounded-lg text-lg mb-4 shadow-button ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => handlePurchase(tossPaymentSingleMobile)}
+              disabled={isButtonDisabled}
             >
               휴대폰 소액결제
             </button>
