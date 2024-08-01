@@ -18,6 +18,7 @@ const generateUUID = () => {
 const PaymentPage = () => {
   const [portOneLoaded, setPortOneLoaded] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -50,25 +51,48 @@ const PaymentPage = () => {
       console.error(error);
     }
   };
-
-  const handlePurchase = useCallback((basePaymentData: any) => {
+  const handlePurchase = useCallback(async (basePaymentData: any) => {
     if (isButtonDisabled) return;
-
+  
     setIsButtonDisabled(true);
-
-    const paymentData = {
-      ...basePaymentData,
-      paymentId: generateUUID(),
-      redirectUrl: 'https://cardcapture.app/payment',
-    };
-    requestPayment(paymentData);
-
+    setErrorMessage('');
+  
+    try {
+      const checkResponse = await fetch('http://localhost:8080/api/v1/payment/single/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_JWT}`
+        },
+        body: JSON.stringify({ amount: basePaymentData.totalAmount }),
+      });
+  
+      if (checkResponse.status === 200) {
+        const paymentData = {
+          ...basePaymentData,
+          paymentId: generateUUID(),
+          redirectUrl: 'https://cardcapture.app/payment',
+        };
+        requestPayment(paymentData);
+      } else if (checkResponse.status === 400) {
+        setErrorMessage('재고가 부족합니다.');
+      } else if (checkResponse.status === 402) {
+        setErrorMessage('결제 가능 금액을 초과했습니다.');
+      } else if (checkResponse.status === 429) {
+        setErrorMessage('너무 빠르게 중복 요청되었습니다.');
+      } else {
+        setErrorMessage('결제 요청 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      setErrorMessage('결제 요청 중 오류가 발생했습니다.');
+    }
+  
     setTimeout(() => {
       setIsButtonDisabled(false);
     }, 1000);
   }, [isButtonDisabled, portOneLoaded]);
 
-
+  
   const tossPaymentSingleCard = {
     storeId: process.env.NEXT_PUBLIC_STORE_ID,
     channelKey: process.env.NEXT_PUBLIC_CHANNEL_KEY,
@@ -205,10 +229,16 @@ const PaymentPage = () => {
               휴대폰 소액결제
             </button>
           </div>
+          {errorMessage && <div className="error-message text-red-500 mt-4">{errorMessage}</div>}
         </div>
       </div>
 
       <style jsx>{`
+      .error-message {
+        color: #f44336;
+        font-size: 16px;
+        margin-top: 20px;
+      }
         .button-container {
           margin-top: 20px; /* 버튼들 상단에 여백 추가 */
         }
