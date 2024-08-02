@@ -14,11 +14,11 @@ const generateUUID = () => {
     return v.toString(16);
   });
 };
-
 const PaymentPage = () => {
   const [portOneLoaded, setPortOneLoaded] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState(''); 
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -43,14 +43,59 @@ const PaymentPage = () => {
       console.error('PortOne SDK is not loaded yet');
       return;
     }
-
+  
     try {
       const response = await window.PortOne.requestPayment(data);
       console.log(response);
+      if (response.transactionType === 'PAYMENT' && response.txId) {
+        // 결제 완료 후 백엔드 서버에 확인 요청
+        pollPaymentStatus(response.paymentId);
+      } else {
+        setErrorMessage('결제에 실패했습니다.');
+      }
     } catch (error) {
       console.error(error);
+      setErrorMessage('결제 요청 중 오류가 발생했습니다.');
     }
   };
+
+  const pollPaymentStatus = async (paymentId: string) => {
+    let attempts = 0;
+    const maxAttempts = 3;
+    const interval = 300; // 0.3초 간격
+  
+    const checkStatus = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/v1/payment/single/endCheck`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_JWT}` // 인증 토큰 추가
+          },
+          body: JSON.stringify({ paymentId }),
+        });
+  
+        const result = await response.json();
+  
+        if (response.ok && result.data && result.data.status === 'PAID') {
+          // 결제 성공 시 화면에 메시지 표시
+          setSuccessMessage('구매 완료입니다');
+        } else {
+          throw new Error('결제 상태 확인 실패');
+        }
+      } catch (error) {
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, interval);
+        } else {
+          setErrorMessage('결제 상태 확인에 실패했습니다. 마이페이지에서 이용권을 확인할 수 없으면 고객센터에 문의하세요.');
+        }
+      }
+    };
+  
+    checkStatus();
+  };
+  
   const handlePurchase = useCallback(async (basePaymentData: any) => {
     if (isButtonDisabled) return;
   
@@ -58,7 +103,7 @@ const PaymentPage = () => {
     setErrorMessage('');
   
     try {
-      const checkResponse = await fetch('http://localhost:8080/api/v1/payment/single/check', {
+      const checkResponse = await fetch('http://localhost:8080/api/v1/payment/single/startCheck', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -229,16 +274,21 @@ const PaymentPage = () => {
               휴대폰 소액결제
             </button>
           </div>
+          {successMessage && <div className="success-message text-green-500 mt-4">{successMessage}</div>}
           {errorMessage && <div className="error-message text-red-500 mt-4">{errorMessage}</div>}
+          <div className="new-payment-method mt-6 text-gray-600 text-sm">
+            고객님의 편리한 구매를 위해,<br />
+            곧 카카오페이가 추가될 예정이에요!
+          </div>
         </div>
       </div>
 
       <style jsx>{`
-      .error-message {
-        color: #f44336;
-        font-size: 16px;
-        margin-top: 20px;
-      }
+        .error-message {
+          color: #f44336;
+          font-size: 16px;
+          margin-top: 20px;
+        }
         .button-container {
           margin-top: 20px; /* 버튼들 상단에 여백 추가 */
         }
@@ -321,6 +371,31 @@ const PaymentPage = () => {
         .shadow-button {
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+        .new-payment-method {
+          color: #666;
+          font-size: 14px;
+          text-align: center;
+          margin-top: 20px;
+          animation: bounce 2s infinite;
+        }
+        .success-message {
+          color: #4caf50;
+          font-size: 16px;
+          margin-top: 20px;
+        }
+
+        @keyframes bounce {
+          0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+          }
+          40% {
+            transform: translateY(-20px);
+          }
+          60% {
+            transform: translateY(-10px);
+          }
+        }
+
       `}</style>
     </>
   );
