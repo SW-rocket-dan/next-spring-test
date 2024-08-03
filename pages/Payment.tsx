@@ -14,11 +14,29 @@ const generateUUID = () => {
     return v.toString(16);
   });
 };
+
 const PaymentPage = () => {
   const [portOneLoaded, setPortOneLoaded] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState(''); 
+
+  const [count, setCount] = useState(1);
+  const originalPrice = 5000;
+  const discountedPrice = 500;
+
+  const handleIncrease = () => {
+    setCount(count + 1);
+  };
+
+  const handleDecrease = () => {
+    if (count > 1) {
+      setCount(count - 1);
+    }
+  };
+
+  const totalPrice = count * discountedPrice;
+  const totalOriginalPrice = count * originalPrice;
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -109,13 +127,24 @@ const PaymentPage = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.NEXT_PUBLIC_JWT}`
         },
-        body: JSON.stringify({ amount: basePaymentData.totalAmount }),
+        body: JSON.stringify({
+          products: [
+            {
+              productId: "AIP001",
+              quantity: count, // Here `count` is used for quantity, based on user interaction.
+              price: basePaymentData.totalAmount
+            }
+          ],
+          totalPrice: count * basePaymentData.totalAmount, // Calculated total price based on the count and totalAmount.
+          requestTime: new Date().toISOString() // Current date-time in ISO string format.
+        }),
       });
   
       if (checkResponse.status === 200) {
+        const responseJson = await checkResponse.json(); // Added to handle response correctly.
         const paymentData = {
           ...basePaymentData,
-          paymentId: generateUUID(),
+          paymentId: responseJson.data.paymentId, // Using paymentId from server response.
           redirectUrl: 'https://cardcapture.app/payment',
         };
         requestPayment(paymentData);
@@ -135,8 +164,7 @@ const PaymentPage = () => {
     setTimeout(() => {
       setIsButtonDisabled(false);
     }, 1000);
-  }, [isButtonDisabled, portOneLoaded]);
-
+  }, [isButtonDisabled, portOneLoaded, count]);
   
   const tossPaymentSingleCard = {
     storeId: process.env.NEXT_PUBLIC_STORE_ID,
@@ -191,24 +219,6 @@ const PaymentPage = () => {
     currency: 'CURRENCY_KRW',
     payMethod: 'MOBILE',
   };
-
-  const [count, setCount] = useState(1);
-  const originalPrice = 5000;
-  const discountedPrice = 500;
-
-  const handleIncrease = () => {
-    setCount(count + 1);
-  };
-
-  const handleDecrease = () => {
-    if (count > 1) {
-      setCount(count - 1);
-    }
-  };
-
-  const totalPrice = count * discountedPrice;
-  const totalOriginalPrice = count * originalPrice;
-
   return (
     <>
       <div className="flex justify-center items-center h-full">
