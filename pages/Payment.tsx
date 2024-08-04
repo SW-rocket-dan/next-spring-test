@@ -149,9 +149,11 @@ const PaymentPage = () => {
         };
         requestPayment(paymentData);
       } else if (checkResponse.status === 400) {
-        setErrorMessage('재고가 부족합니다.');
+        setErrorMessage('프론트 요청한 데이터의 정합성 오류');
       } else if (checkResponse.status === 402) {
         setErrorMessage('결제 가능 금액을 초과했습니다.');
+      } else if (checkResponse.status === 409) {
+        setErrorMessage('재고가 부족합니다.');
       } else if (checkResponse.status === 429) {
         setErrorMessage('너무 빠르게 중복 요청되었습니다.');
       } else {
