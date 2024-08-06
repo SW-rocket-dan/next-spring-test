@@ -120,6 +120,8 @@ const PaymentPage = () => {
     setIsButtonDisabled(true);
     setErrorMessage('');
   
+
+    console.log(basePaymentData.totalAmount, count)
     try {
       const checkResponse = await fetch('http://localhost:8080/api/v1/payment/single/startCheck', {
         method: 'POST',
@@ -139,14 +141,19 @@ const PaymentPage = () => {
           requestTime: new Date().toISOString() // Current date-time in ISO string format.
         }),
       });
+
+
+      const tempData = {...basePaymentData, totalAmount: count * basePaymentData.totalAmount}
   
       if (checkResponse.status === 200) {
         const responseJson = await checkResponse.json(); // Added to handle response correctly.
         const paymentData = {
-          ...basePaymentData,
+          ...tempData,
           paymentId: responseJson.data.paymentId, // Using paymentId from server response.
           redirectUrl: 'https://cardcapture.app/payment',
         };
+
+        console.log(paymentData)
         requestPayment(paymentData);
       } else if (checkResponse.status === 400) {
         setErrorMessage('프론트 요청한 데이터의 정합성 오류');
