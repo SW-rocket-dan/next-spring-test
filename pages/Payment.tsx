@@ -132,7 +132,7 @@ const PaymentPage = () => {
         body: JSON.stringify({
           products: [
             {
-              productId: "AIP001",
+              productId: "AI_POSTER_PRODUCTION_TICKET",
               quantity: count, // Here `count` is used for quantity, based on user interaction.
               price: basePaymentData.totalAmount
             }
