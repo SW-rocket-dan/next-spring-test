@@ -95,7 +95,7 @@ const PaymentPage = () => {
   
         const result = await response.json();
   
-        if (response.ok && result.data && result.data.status === 'PAID') {
+        if (response.ok && result.data && result.data.status === 'FINAL_PAID') {
           // 결제 성공 시 화면에 메시지 표시
           setSuccessMessage('구매 완료입니다');
         } else {
@@ -132,7 +132,7 @@ const PaymentPage = () => {
         body: JSON.stringify({
           products: [
             {
-              productId: "AI_POSTER_PRODUCTION_TICKET",
+              productCategory: "AI_POSTER_PRODUCTION_TICKET",
               quantity: count, // Here `count` is used for quantity, based on user interaction.
               price: basePaymentData.totalAmount
             }
